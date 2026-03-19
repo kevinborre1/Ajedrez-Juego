@@ -1,31 +1,35 @@
 class Peon extends Pieza {
     constructor(color) {
-        super(color);
+        super(color); 
     }
 
+    
+
     puedeMover(origen, destino, tablero) {
+        const direccion = this.color === "blanco" ? -1 : 1;
+        const piezaDestino = tablero[destino.fila][destino.columna];
 
-        let direccion = this.color === "blanco" ? -1 : 1;
-
-        let piezaDestino = tablero[destino.fila][destino.columna];
-
-        //avanza 1 
+        // 1. AVANCE SIMPLE (1 casilla)
         if (origen.columna === destino.columna &&
             destino.fila === origen.fila + direccion &&
             piezaDestino === null) {
             return true;
         }
 
-        // avanzar 2 (primer movimiento)
+        // 2. AVANCE DOBLE (Solo si no se ha movido antes)
         if (origen.columna === destino.columna &&
-            ((this.color === "blanco" && origen.fila === 6) ||
-             (this.color === "negro" && origen.fila === 1)) &&
+            !this.movio && // Usando la propiedad heredada
             destino.fila === origen.fila + 2 * direccion &&
             piezaDestino === null) {
-            return true;
+            
+            // Verificar que la casilla intermedia esté vacía
+            const filaIntermedia = origen.fila + direccion;
+            if (tablero[filaIntermedia][origen.columna] === null) {
+                return true;
+            }
         }
 
-        // comer en diagonal
+        // 3. CAPTURA DIAGONAL
         if (Math.abs(destino.columna - origen.columna) === 1 &&
             destino.fila === origen.fila + direccion &&
             piezaDestino !== null &&
