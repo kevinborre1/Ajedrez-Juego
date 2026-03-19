@@ -1,22 +1,27 @@
-.tablero {
+#tablero {
     display: grid;
-    grid-template-columns: repeat(8, 50px);
+    /* Crea 8 columnas automáticas de 50px cada una */
+    grid-template-columns: repeat(8, 50px); 
+    /* Crea 8 filas de 50px cada una */
     grid-template-rows: repeat(8, 50px);
-    width: 400px;
-    height: 400px;
-    border: 2px solid black;
-    margin: 20px auto;
+    
+    width: fit-content; /* El contenedor se ajusta a las celdas */
+    border: 5px solid #333; /* Un borde bonito para el tablero */
+    margin: 20px auto; /* Centra el tablero en la pantalla */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Le da profundidad */
 }
 
-.casilla {
+/* Estilos para cada celda */
+.celda {
     width: 50px;
     height: 50px;
+    display: flex;
+    align-items: center; /* Centra el texto/pieza verticalmente */
+    justify-content: center; /* Centra el texto/pieza horizontalmente */
+    font-size: 30px; /* Tamaño para las piezas (emojis o texto) */
+    cursor: pointer;
 }
 
-.negra {
-    background-color: 000000; /* Marrón oscuro */
-}
-
-.blanca {
-    background-color: #F5DEB3; /* Beige claro */
+.celda:hover {
+    filter: brightness(1.1); /* Efecto visual al pasar el mouse */
 }
