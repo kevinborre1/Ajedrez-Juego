@@ -14,7 +14,6 @@ class Pieza {
         throw new Error("El método 'puedeMover' debe ser implementado por la pieza específica.");
     }
 
-    // Método de utilidad para marcar que la pieza ya se desplazó
     registrarMovimiento() {
         this.movio = true;
     }
