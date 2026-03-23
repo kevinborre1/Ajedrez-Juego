@@ -5,35 +5,30 @@ class LogicaJuegoAjedrez {
         this.historialMovimientos = [];
     }
 
-    // Método principal que llamaamos desde la interfaz para intentar mover una pieza
     intentarMover(origen, destino) {
-        const pieza = this.tablero[origen.fila][origen.columna];
+    const pieza = this.tablero[origen.fila][origen.columna];
 
-        
-        if (!pieza || pieza.color !== this.turnoActual) {
-            console.warn("No es tu pieza o no hay pieza en el origen.");
-            return false;
-        }
+    // 1. Validaciones básicas (turno, geometría, no suicidio)
+    if (!pieza || pieza.color !== this.turnoActual) return false;
+    if (!pieza.puedeMover(origen, destino, this.tablero)) return false;
+    if (this.movimientoEsSuicida(origen, destino)) return false;
 
-        
-        if (!pieza.puedeMover(origen, destino, this.tablero)) {
-            console.warn("Movimiento inválido para esta pieza.");
-            return false;
-        }
+    // 2. EJECUTAR EL MOVIMIENTO PRIMERO
+    this.ejecutarMovimiento(origen, destino);
 
-        // 3. ¿El movimiento deja al propio Rey en jaque? (Regla de oro)
-        if (this.movimientoEsSuicida(origen, destino)) {
-            console.warn("Movimiento ilegal: deja al Rey en jaque.");
-            return false;
-        }
+    // 3. DEFINIR AL OPONENTE (el que acaba de recibir el movimiento)
+    const colorOponente = (this.turnoActual === "blanco") ? "negro" : "blanco";
 
-        this.ejecutarMovimiento(origen, destino);
-        
-        this.cambiarTurno();
-        
-        return true; 
+    // 4. AHORA SÍ: Verificar si el oponente quedó en Jaque Mate
+    if (this.estaEnJaqueMate(colorOponente)) {
+        alert("¡JAQUE MATE! Ganador: " + this.turnoActual);
     }
 
+    // 5. Cambiar el turno para la siguiente jugada
+    this.cambiarTurno();
+    
+    return true; 
+}
     ejecutarMovimiento(origen, destino) {
         const pieza = this.tablero[origen.fila][origen.columna];
 
@@ -132,5 +127,45 @@ estaBajoAtaque(posicion, colorEnemigo, tablero) {
     }
 
     return matriz;
+}
+
+estaEnJaqueMate(color) {
+    const colorOponente = (color === "blanco") ? "negro" : "blanco";
+    const posRey = this.encontrarPosicionRey(color, this.tablero);
+
+    // 1. Si el Rey no está bajo ataque, no puede ser Jaque Mate
+    if (!this.estaBajoAtaque(posRey, colorOponente, this.tablero)) {
+        return false;
+    }
+
+    // 2. Si está en jaque, buscamos SI EXISTE algún movimiento que lo salve
+    // Recorremos todo el tablero buscando piezas del color en peligro
+    for (let f = 0; f < 8; f++) {
+        for (let c = 0; c < 8; c++) {
+            const pieza = this.tablero[f][c];
+
+            if (pieza && pieza.color === color) {
+                // Para cada pieza, probamos todos los destinos posibles del tablero
+                for (let df = 0; df < 8; df++) {
+                    for (let dc = 0; dc < 8; dc++) {
+                        const origen = { fila: f, columna: c };
+                        const destino = { fila: df, columna: dc };
+
+                        // ¿Es un movimiento físicamente posible para la pieza?
+                        if (pieza.puedeMover(origen, destino, this.tablero)) {
+                            // ¿Y ese movimiento es legal (no deja al Rey en jaque)?
+                            if (!this.movimientoEsSuicida(origen, destino)) {
+                                // ¡Encontramos una salida! No es jaque mate
+                                return false; 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 3. Si recorrimos todo y ningún movimiento salvó al Rey...
+    return true; 
 }
 }

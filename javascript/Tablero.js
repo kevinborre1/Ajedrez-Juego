@@ -1,8 +1,8 @@
 class Tablero {
     constructor(logica) {
-        this.logica = logica; // Referencia a LogicaJuegoAjedrez
+        this.logica = logica; // Referencia a tu clase LogicaJuegoAjedrez
         this.contenedor = document.getElementById("tablero");
-        this.origenSeleccionado = null; // Para guardar el primer clic
+        this.origenSeleccionado = null; // Guarda {fila, columna} del primer clic
     }
 
     mostrarTablero() {
@@ -11,17 +11,28 @@ class Tablero {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
                 const pieza = this.logica.tablero[i][j];
-                const celda = this.crearCelda(i, j);
+                const celda = document.createElement("div");
+                celda.classList.add("celda");
                 
-                this.aplicarColorCasilla(celda, i, j);
-                
-                // Si hay una pieza, dibujamos su símbolo o nombre
+                // Aplicar color de la casilla (clara u oscura)
+                const esClara = (i + j) % 2 === 0;
+                celda.style.backgroundColor = esClara ? "#eee" : "#555";
+
+                // Si hay una pieza en esta posición de la matriz
                 if (pieza) {
                     celda.textContent = this.obtenerIconoPieza(pieza);
-                    celda.classList.add(pieza.color); // Clase 'blanco' o 'negro'
+                    celda.classList.add(pieza.color); // Útil para CSS (blanco/negro)
                 }
 
-                // Añadimos el evento de clic para mover
+                // Resaltar si esta casilla es la que acabamos de seleccionar
+                if (this.origenSeleccionado && 
+                    this.origenSeleccionado.fila === i && 
+                    this.origenSeleccionado.columna === j) {
+                    celda.style.outline = "4px solid yellow";
+                    celda.style.zIndex = "10";
+                }
+
+                // EVENTO PRINCIPAL
                 celda.onclick = () => this.manejarClic(i, j);
 
                 this.contenedor.appendChild(celda);
@@ -29,22 +40,39 @@ class Tablero {
         }
     }
 
-    crearCelda(f, c) {
-        let celda = document.createElement("div");
-        celda.classList.add("celda");
-        // Guardamos las coordenadas en el elemento para facilitar el debug
-        celda.dataset.fila = f;
-        celda.dataset.columna = c;
-        return celda;
-    }
+    manejarClic(f, c) {
+        const piezaEnClic = this.logica.tablero[f][c];
 
-    aplicarColorCasilla(celda, fila, columna) {
-        const esClara = (fila + columna) % 2 === 0;
-        celda.style.backgroundColor = esClara ? "#eee" : "#555"; // Un gris oscuro suele verse mejor que negro puro
+        // CASO A: No hay nada seleccionado aún
+        if (!this.origenSeleccionado) {
+            // Solo seleccionamos si el clic es en una pieza del turno actual
+            if (piezaEnClic && piezaEnClic.color === this.logica.turnoActual) {
+                this.origenSeleccionado = { fila: f, columna: c };
+                this.mostrarTablero(); // Refrescamos para mostrar el resalte amarillo
+            }
+        } 
+        // CASO B: Ya teníamos una pieza seleccionada e hicimos el segundo clic
+        else {
+            const origen = this.origenSeleccionado;
+            const destino = { fila: f, columna: c };
+
+            // Intentamos mover usando la lógica que armamos antes
+            const exito = this.logica.intentarMover(origen, destino);
+
+            if (exito) {
+                console.log("Movimiento realizado con éxito");
+            } else {
+                console.warn("Movimiento ilegal intentado");
+            }
+
+            // Limpiamos la selección y redibujamos
+            this.origenSeleccionado = null;
+            this.mostrarTablero();
+        }
     }
 
     obtenerIconoPieza(pieza) {
-        // Diccionario rápido de iconos Unicode (puedes usar imágenes luego)
+        const nombrePieza = pieza.constructor.name;
         const iconos = {
             "Peon": pieza.color === "blanco" ? "♙" : "♟",
             "Torre": pieza.color === "blanco" ? "♖" : "♜",
@@ -53,28 +81,6 @@ class Tablero {
             "Reina": pieza.color === "blanco" ? "♕" : "♛",
             "Rey": pieza.color === "blanco" ? "♔" : "♚"
         };
-        return iconos[pieza.constructor.name] || "?";
-    }
-
-    manejarClic(f, c) {
-        if (!this.origenSeleccionado) {
-            // PRIMER CLIC: Seleccionar pieza
-            const pieza = this.logica.tablero[f][c];
-            if (pieza && pieza.color === this.logica.turnoActual) {
-                this.origenSeleccionado = { fila: f, columna: c };
-                console.log("Origen seleccionado:", f, c);
-                // Opcional: añadir clase CSS para resaltar la celda
-            }
-        } else {
-            // SEGUNDO CLIC: Intentar mover
-            const destino = { fila: f, columna: c };
-            const exito = this.logica.intentarMover(this.origenSeleccionado, destino);
-            
-            if (exito) {
-                this.mostrarTablero(); // Refrescar vista
-            }
-            
-            this.origenSeleccionado = null; // Limpiar selección siempre
-        }
+        return iconos[nombrePieza] || "?";
     }
 }
