@@ -15,12 +15,10 @@ class Torre extends Pieza {
             return false;
         }
 
-        // 2. Usar la función de la clase padre
         if (!this.caminoLibre(origen, destino, tablero)) {
             return false;
         }
 
-        // 3. Validar destino (no capturar pieza propia)
         const piezaDestino = tablero[destino.fila][destino.columna];
         return !(piezaDestino && piezaDestino.color === this.color);
     }

@@ -8,7 +8,6 @@ class Caballo extends Pieza {
         const diffFila = Math.abs(destino.fila - origen.fila);
         const diffColumna = Math.abs(destino.columna - origen.columna);
 
-        // 1. Validar la geometría en "L"
         const esMovimientoEnL = (diffFila === 2 && diffColumna === 1) || 
                                 (diffFila === 1 && diffColumna === 2);
 
