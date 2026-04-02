@@ -6,29 +6,31 @@ class LogicaJuegoAjedrez {
     }
 
     intentarMover(origen, destino) {
-    const pieza = this.tablero[origen.fila][origen.columna];
+        const pieza = this.tablero[origen.fila][origen.columna];
 
-    // 1. Validaciones básicas (turno, geometría, no suicidio)
-    if (!pieza || pieza.color !== this.turnoActual) return false;
-    if (!pieza.puedeMover(origen, destino, this.tablero)) return false;
-    if (this.movimientoEsSuicida(origen, destino)) return false;
+        // 1. Validaciones básicas (turno, geometría, no suicidio)
+        if (!pieza || pieza.color !== this.turnoActual) return false;
+        if (!pieza.puedeMover(origen, destino, this.tablero)) return false;
+        if (this.movimientoEsSuicida(origen, destino)) return false;
 
-    // 2. EJECUTAR EL MOVIMIENTO PRIMERO
-    this.ejecutarMovimiento(origen, destino);
+        // 2. EJECUTAR EL MOVIMIENTO PRIMERO
+        this.ejecutarMovimiento(origen, destino);
 
-    // 3. DEFINIR AL OPONENTE (el que acaba de recibir el movimiento)
-    const colorOponente = (this.turnoActual === "blanco") ? "negro" : "blanco";
+        // 3. DEFINIR AL OPONENTE (el que acaba de recibir el movimiento)
+        const colorOponente = (this.turnoActual === "blanco") ? "negro" : "blanco";
 
-    // 4. AHORA SÍ: Verificar si el oponente quedó en Jaque Mate
-    if (this.estaEnJaqueMate(colorOponente)) {
-        alert("¡JAQUE MATE! Ganador: " + this.turnoActual);
+        // 4. AHORA SÍ: Verificar si el oponente quedó en Jaque Mate
+        if (this.estaEnJaqueMate(colorOponente)) {
+            console.log("¡JAQUE MATE DETECTADO para " + colorOponente + "!");
+
+            alert("¡JAQUE MATE! Ganador: " + this.turnoActual);
+        }
+
+        // 5. Cambiar el turno para la siguiente jugada
+        this.cambiarTurno();
+        
+        return true; 
     }
-
-    // 5. Cambiar el turno para la siguiente jugada
-    this.cambiarTurno();
-    
-    return true; 
-}
     ejecutarMovimiento(origen, destino) {
         const pieza = this.tablero[origen.fila][origen.columna];
 
@@ -156,7 +158,12 @@ estaEnJaqueMate(color) {
                             // ¿Y ese movimiento es legal (no deja al Rey en jaque)?
                             if (!this.movimientoEsSuicida(origen, destino)) {
                                 // ¡Encontramos una salida! No es jaque mate
+                                console.log("¡JAQUE MATE DETECTADO para " + color + "!");
+
                                 return false; 
+                                    
+                                
+
                             }
                         }
                     }
@@ -165,7 +172,9 @@ estaEnJaqueMate(color) {
         }
     }
 
+    
     // 3. Si recorrimos todo y ningún movimiento salvó al Rey...
+    console.log("¡JAQUE MATE DETECTADO para " + color + "!");
     return true; 
 }
 }

@@ -13,15 +13,12 @@ class Caballo extends Pieza {
 
         if (!esMovimientoEnL) return false;
 
-        // 2. Validar destino (no capturar pieza propia)
         const piezaDestino = tablero[destino.fila][destino.columna];
         
-        // Si hay pieza y es de mi mismo color, no puedo mover
         if (piezaDestino && piezaDestino.color === this.color) {
             return false;
         }
 
-        // El caballo ignora 'caminoLibre' porque salta piezas
         return true;
     }
 }
