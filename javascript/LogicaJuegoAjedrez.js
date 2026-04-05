@@ -17,18 +17,16 @@ class LogicaJuegoAjedrez {
         this.ejecutarMovimiento(origen, destino);
 
         // 3. DEFINIR AL OPONENTE (el que acaba de recibir el movimiento)
-        const colorOponente = (this.turnoActual === "blanco") ? "negro" : "blanco";
-
-        // 4. AHORA SÍ: Verificar si el oponente quedó en Jaque Mate
-        if (this.estaEnJaqueMate(colorOponente)) {
-            console.log("¡JAQUE MATE DETECTADO para " + colorOponente + "!");
-
-            alert("¡JAQUE MATE! Ganador: " + this.turnoActual);
-        }
+        const colorOponente = (this.turnoActual === "blanco") ? "negro" : "blanco";        
 
         // 5. Cambiar el turno para la siguiente jugada
         this.cambiarTurno();
         
+        if (this.estaEnJaqueMate(colorOponente)) {
+            console.log("¡JAQUE MATE DETECTADO para " + colorOponente + "!");
+            this.cambiarTurno();  
+            alert("¡JAQUE MATE! Ganador: " + this.turnoActual);
+        }
         return true; 
     }
     ejecutarMovimiento(origen, destino) {
@@ -176,5 +174,6 @@ estaEnJaqueMate(color) {
     // 3. Si recorrimos todo y ningún movimiento salvó al Rey...
     console.log("¡JAQUE MATE DETECTADO para " + color + "!");
     return true; 
+
 }
 }
