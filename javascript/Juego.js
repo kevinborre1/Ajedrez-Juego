@@ -6,7 +6,7 @@ const interfaz = new Tablero(logica);
 
 // 3. Crear el controlador (Pasando AMBOS: logica e interfaz)
 // El error en la línea 8 suele ser porque falta uno de estos dos
-const controlador = new ControladorJuego(logica, interfaz);
+const controlador = new Controladorjuego(logica, interfaz);
 
 // 4. Conectar el tablero con el controlador para los clics
 interfaz.setControlador(controlador);

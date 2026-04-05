@@ -170,10 +170,42 @@ estaEnJaqueMate(color) {
         }
     }
 
-    
-    // 3. Si recorrimos todo y ningún movimiento salvó al Rey...
-    console.log("¡JAQUE MATE DETECTADO para " + color + "!");
+    // Si no encontramos ningún movimiento que salve al Rey, es Jaque Mate
     return true; 
 
 }
+
+generarFEN() {
+    let fen = "";
+    for (let f = 0; f < 8; f++) {
+        let vacias = 0;
+        for (let c = 0; c < 8; c++) {
+            const pieza = this.tablero[f][c];
+            if (!pieza) {
+                vacias++;
+            } else {
+                if (vacias > 0) {
+                    fen += vacias;
+                    vacias = 0;
+                }
+                // Diccionario de letras según el tipo de pieza
+                const letras = {
+                    "Peon": "p", "Torre": "r", "Caballo": "n", 
+                    "Alfil": "b", "Reina": "q", "Rey": "k"
+                };
+                let letra = letras[pieza.constructor.name];
+                fen += (pieza.color === "blanco") ? letra.toUpperCase() : letra;
+            }
+        }
+        if (vacias > 0) fen += vacias;
+        if (f < 7) fen += "/";
+    }
+
+    // Añadimos el turno y otros datos básicos (simplificado)
+    const turno = (this.turnoActual === "blanco") ? " w " : " b ";
+    return fen + turno + "KQkq - 0 1";
+}
+
+
+
 }
