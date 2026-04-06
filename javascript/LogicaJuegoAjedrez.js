@@ -45,6 +45,26 @@ class LogicaJuegoAjedrez {
             pieza.registrarMovimiento();
         }
 
+        // DETECTAR ENROQUE: Si el Rey se movió 2 casillas laterales
+        if (pieza.constructor.name === "Rey" && Math.abs(destino.columna - origen.columna) === 2) {
+            const fila = origen.fila;
+            const esLargo = (destino.columna === 2);
+            const origenTorreCol = esLargo ? 0 : 7;
+            const destinoTorreCol = esLargo ? 3 : 5;
+
+        // Mover la Torre manualmente
+        const torre = this.tablero[fila][origenTorreCol];
+        this.tablero[fila][destinoTorreCol] = torre;
+        this.tablero[fila][origenTorreCol] = null;
+        torre.haMovido = true;
+    }
+
+    // Movimiento normal del Rey u otra pieza
+    this.tablero[destino.fila][destino.columna] = pieza;
+    this.tablero[origen.fila][origen.columna] = null;
+    pieza.registrarMovimiento();
+
+
         console.log(`Movido: ${pieza.constructor.name} a ${destino.fila},${destino.columna}`);
     }
 
@@ -174,6 +194,37 @@ estaEnJaqueMate(color) {
     return true; 
 
 }
+
+validarCondicionesEnroque(origen, destino, tablero) {
+    const fila = origen.fila;
+    const esLargo = (destino.columna === 2);
+    const colTorre = esLargo ? 0 : 7;
+    const torre = tablero[fila][colTorre];
+
+    // 1. ¿Existe la torre y no se ha movido?
+    if (!torre || torre.constructor.name !== "Torre" || torre.seHaMovido) return false;
+
+    // 2. ¿Camino despejado?
+    const paso = esLargo ? [1, 2, 3] : [5, 6];
+    for (let c of paso) {
+        if (tablero[fila][c] !== null) return false;
+    }
+
+    // 3. ¿Seguridad del Rey? (No estar en jaque ni pasar por fuego)
+    const colorEnemigo = (this.color === "blanco") ? "negro" : "blanco";
+    const casillasAPascar = esLargo ? [4, 3, 2] : [4, 5, 6]; // Inicio, paso y destino
+    
+    for (let c of casillasAPascar) {
+        // Usamos tu método existente estaBajoAtaque
+        if (logica.estaBajoAtaque({ fila, columna: c }, colorEnemigo, tablero)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
 
 generarFEN() {
     let fen = "";
