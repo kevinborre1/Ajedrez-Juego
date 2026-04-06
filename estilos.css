@@ -1,27 +1,48 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f0f0f0; /* Fondo suave */
+}
+
 #tablero {
     display: grid;
-    /* Crea 8 columnas automáticas de 50px cada una */
-    grid-template-columns: repeat(8, 50px); 
-    /* Crea 8 filas de 50px cada una */
-    grid-template-rows: repeat(8, 50px);
+    /* Crea 8 columnas que se adaptan al tamaño del contenedor */
+    grid-template-columns: repeat(8, 1fr); 
+    /* Crea 8 filas que se adaptan al tamaño del contenedor */
+    grid-template-rows: repeat(8, 1fr);
     
-    width: fit-content; /* El contenedor se ajusta a las celdas */
+    /* El tablero se ajusta al 90% del viewport, manteniendo proporción cuadrada */
+    width: min(90vw, 90vh);
+    height: min(90vw, 90vh);
+    
     border: 5px solid #333; /* Un borde bonito para el tablero */
-    margin: 20px auto; /* Centra el tablero en la pantalla */
+    margin: 2vh auto; /* Centra el tablero y ajusta margen responsivo */
     box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Le da profundidad */
 }
 
 /* Estilos para cada celda */
 .celda {
-    width: 50px;
-    height: 50px;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center; /* Centra el texto/pieza verticalmente */
     justify-content: center; /* Centra el texto/pieza horizontalmente */
-    font-size: 30px; /* Tamaño para las piezas (emojis o texto) */
+    font-size: 3em; /* Tamaño relativo para las piezas (emojis o texto) que se escala con el tablero */
     cursor: pointer;
 }
 
 .celda:hover {
     filter: brightness(1.1); /* Efecto visual al pasar el mouse */
+}
+
+/* Media queries para pantallas pequeñas */
+@media (max-width: 600px) {
+    .celda {
+        font-size: 2em; /* Reduce el tamaño de las piezas en pantallas pequeñas */
+    }
 }
