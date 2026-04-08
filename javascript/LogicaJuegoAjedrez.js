@@ -10,7 +10,7 @@ class LogicaJuegoAjedrez {
 
         // 1. Validaciones básicas (turno, geometría, no suicidio)
         if (!pieza || pieza.color !== this.turnoActual) return false;
-        if (!pieza.puedeMover(origen, destino, this.tablero)) return false;
+        if (!pieza.puedeMover(origen, destino, this.tablero, this)) return false;
         if (this.movimientoEsSuicida(origen, destino)) return false;
 
         // 2. EJECUTAR EL MOVIMIENTO PRIMERO
@@ -29,44 +29,47 @@ class LogicaJuegoAjedrez {
         }
         return true; 
     }
+   
     ejecutarMovimiento(origen, destino) {
-        const pieza = this.tablero[origen.fila][origen.columna];
+    const pieza = this.tablero[origen.fila][origen.columna];
 
-        // Mover la pieza en la matriz
-        this.tablero[destino.fila][destino.columna] = pieza;
-        this.tablero[origen.fila][origen.columna] = null;
-        
-        //si el peon llega al final del tablero, se promociona a reina automáticamente
-        if (pieza.tipo === "Peon" && (destino.fila === 0 || destino.fila === 7)) {
-            this.tablero[destino.fila][destino.columna] = new Reina(pieza.color);
-        }
-        // Si la pieza tiene lógica interna de "primer movimiento" (útil para Peón/Torre)
-        if (typeof pieza.registrarMovimiento === "function") {
-            pieza.registrarMovimiento();
-        }
+    // 1. LÓGICA ESPECIAL PARA EL ENROQUE
+    if (pieza.constructor.name === "Rey" && Math.abs(destino.columna - origen.columna) === 2) {
+        const fila = origen.fila;
+        const esLargo = (destino.columna === 2);
+        const origenTorreCol = esLargo ? 0 : 7;
+        const destinoTorreCol = esLargo ? 3 : 5;
 
-        // DETECTAR ENROQUE: Si el Rey se movió 2 casillas laterales
-        if (pieza.constructor.name === "Rey" && Math.abs(destino.columna - origen.columna) === 2) {
-            const fila = origen.fila;
-            const esLargo = (destino.columna === 2);
-            const origenTorreCol = esLargo ? 0 : 7;
-            const destinoTorreCol = esLargo ? 3 : 5;
-
-        // Mover la Torre manualmente
         const torre = this.tablero[fila][origenTorreCol];
-        this.tablero[fila][destinoTorreCol] = torre;
-        this.tablero[fila][origenTorreCol] = null;
-        torre.haMovido = true;
+        if (torre) {
+            // Movemos la torre a su nueva posición
+            this.tablero[fila][destinoTorreCol] = torre;
+            // Quitamos la torre de su esquina original
+            this.tablero[fila][origenTorreCol] = null;
+            // Avisamos a la torre que ya se movió (para que no pueda enrocar de nuevo)
+            if (typeof torre.registrarMovimiento === "function") {
+                torre.registrarMovimiento();
+            }
+        }
     }
 
-    // Movimiento normal del Rey u otra pieza
-    this.tablero[destino.fila][destino.columna] = pieza;
-    this.tablero[origen.fila][origen.columna] = null;
-    pieza.registrarMovimiento();
+    // 2. MOVIMIENTO FÍSICO (Aplica para el Rey y para cualquier otra pieza)
+    this.tablero[destino.fila][destino.columna] = pieza; // El Rey llega a su destino
+    this.tablero[origen.fila][origen.columna] = null;   // El lugar donde estaba el Rey queda vacío
 
-
-        console.log(`Movido: ${pieza.constructor.name} a ${destino.fila},${destino.columna}`);
+    // 3. PROMOCIÓN AUTOMÁTICA (Solo para peones)
+    if (pieza.constructor.name === "Peon" && (destino.fila === 0 || destino.fila === 7)) {
+        this.tablero[destino.fila][destino.columna] = new Reina(pieza.color);
     }
+
+    // 4. REGISTRAR MOVIMIENTO (Actualiza el estado 'haMovido' de la pieza)
+    if (typeof pieza.registrarMovimiento === "function") {
+        pieza.registrarMovimiento();
+    }
+
+    console.log(`Movido: ${pieza.constructor.name} a ${destino.fila},${destino.columna}`);
+    
+}
 
     cambiarTurno() {
         this.turnoActual = (this.turnoActual === "blanco") ? "negro" : "blanco";
@@ -196,34 +199,36 @@ estaEnJaqueMate(color) {
 }
 
 validarCondicionesEnroque(origen, destino, tablero) {
+    console.log("Validando enroque...");
+    const pieza = tablero[origen.fila][origen.columna]; // El Rey
     const fila = origen.fila;
     const esLargo = (destino.columna === 2);
     const colTorre = esLargo ? 0 : 7;
     const torre = tablero[fila][colTorre];
 
     // 1. ¿Existe la torre y no se ha movido?
-    if (!torre || torre.constructor.name !== "Torre" || torre.seHaMovido) return false;
+    // OJO: Asegúrate que en Torre.js la propiedad sea 'haMovido' (para que coincida con tu registrarMovimiento)
+    if (!torre || torre.constructor.name !== "Torre" || torre.haMovido) return false;
 
     // 2. ¿Camino despejado?
-    const paso = esLargo ? [1, 2, 3] : [5, 6];
-    for (let c of paso) {
+    const columnasPaso = esLargo ? [1, 2, 3] : [5, 6];
+    for (let c of columnasPaso) {
         if (tablero[fila][c] !== null) return false;
     }
 
-    // 3. ¿Seguridad del Rey? (No estar en jaque ni pasar por fuego)
-    const colorEnemigo = (this.color === "blanco") ? "negro" : "blanco";
-    const casillasAPascar = esLargo ? [4, 3, 2] : [4, 5, 6]; // Inicio, paso y destino
+    // 3. ¿Seguridad del Rey?
+    const colorEnemigo = (pieza.color === "blanco") ? "negro" : "blanco";
+    // El Rey no puede estar en jaque, ni pasar por una casilla atacada, ni terminar en una
+    const casillasAComprobar = esLargo ? [4, 3, 2] : [4, 5, 6]; 
     
-    for (let c of casillasAPascar) {
-        // Usamos tu método existente estaBajoAtaque
-        if (logica.estaBajoAtaque({ fila, columna: c }, colorEnemigo, tablero)) {
+    for (let c of casillasAComprobar) {
+        if (this.estaBajoAtaque({ fila, columna: c }, colorEnemigo, tablero)) {
             return false;
         }
     }
 
     return true;
 }
-
 
 
 generarFEN() {

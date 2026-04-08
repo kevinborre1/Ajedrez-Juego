@@ -21,6 +21,8 @@ class Torre extends Pieza {
 
         const piezaDestino = tablero[destino.fila][destino.columna];
         return !(piezaDestino && piezaDestino.color === this.color);
+        
+        
     }
     
     registrarMovimiento() {
