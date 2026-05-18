@@ -1,16 +1,27 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>AJEDREZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajedrez</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
-
-    <div id="tablero" class="tablero"></div>
-    
-
+ 
+    <h1 id="titulo-juego">♟ Ajedrez</h1>
+ 
+    <div id="marco-exterior">
+        <div id="tablero" class="tablero"></div>
+    </div>
+ 
+    <div id="panel-info">
+        <div id="turno-label">Turno: Blancas</div>
+        <div id="estado-juego">Partida en curso</div>
+    </div>
+ 
+    <button id="btn-reiniciar">↺ &nbsp;Nueva partida</button>
+ 
+ 
 <script src="javascript/Pieza.js"></script>
 <script src="javascript/Peon.js"></script>
 <script src="javascript/Rey.js"></script>
@@ -18,14 +29,14 @@
 <script src="javascript/Alfil.js"></script>
 <script src="javascript/Caballo.js"></script>
 <script src="javascript/Torre.js"></script>
-
-
-<!-- logica y reglas del juego -->
+ 
+<!-- Lógica y reglas del juego -->
 <script src="javascript/LogicaJuegoAjedrez.js"></script>
 <script src="javascript/Tablero.js"></script>
 <script src="javascript/Controladorjuego.js"></script>
-
-<!-- 4. AL FINAL DE TODO el archivo que arranca el juego -->
+ 
+<!-- Arranca el juego -->
 <script src="javascript/Juego.js"></script>
+ 
 </body>
 </html>

@@ -1,48 +1,358 @@
+/* ===================================================
+   AJEDREZ — Diseño Refinado & Elegante
+   Estética: Madera noble, sala de club clásico
+   =================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap');
+
+/* ── Variables ────────────────────────────────────── */
+:root {
+  --casilla-clara:   #f0d9b5;
+  --casilla-oscura:  #b58863;
+  --casilla-hover-c: #f6e9c8;
+  --casilla-hover-o: #c9a07a;
+  --casilla-sel:     #f6f669cc;
+  --casilla-mov:     #cdd16e99;
+  --casilla-jaque:   #e63946cc;
+
+  --madera-borde:    #5c3d1e;
+  --madera-media:    #7a4f2d;
+  --madera-claro:    #9b6b3e;
+  --madera-dorado:   #c8903a;
+  --dorado-brill:    #e8c87a;
+
+  --fondo-sala:      #1a1209;
+  --alfombra:        #0d1b2a;
+
+  --pieza-blanca:    #f5f0e8;
+  --pieza-negra:     #1a1209;
+
+  --shadow-deep:     0 25px 60px rgba(0,0,0,.7), 0 8px 20px rgba(0,0,0,.5);
+  --shadow-pieza:    0 4px 8px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.3);
+
+  --radio-tablero:   4px;
+}
+
+/* ── Reset & Base ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; }
+
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: #f0f0f0; /* Fondo suave */
+  min-height: 100vh;
+  font-family: 'Crimson Pro', Georgia, serif;
+  background-color: var(--fondo-sala);
+  background-image:
+    /* veteado sutil */
+    repeating-linear-gradient(
+      92deg,
+      transparent 0px,
+      transparent 60px,
+      rgba(255,255,255,.015) 60px,
+      rgba(255,255,255,.015) 61px
+    ),
+    repeating-linear-gradient(
+      178deg,
+      transparent 0px,
+      transparent 120px,
+      rgba(0,0,0,.08) 120px,
+      rgba(0,0,0,.08) 121px
+    ),
+    radial-gradient(ellipse at 50% 40%, #2a1a08 0%, #0d0804 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-x: hidden;
 }
 
+/* ── Título ───────────────────────────────────────── */
+#titulo-juego {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: var(--dorado-brill);
+  text-shadow:
+    0 0 40px rgba(200,144,58,.4),
+    0 2px 4px rgba(0,0,0,.8);
+  margin-bottom: clamp(12px, 2vh, 24px);
+  user-select: none;
+  animation: fadeDown .8s ease both;
+}
+
+/* ── Contenedor exterior (marco de madera) ─────────── */
+#marco-exterior {
+  position: relative;
+  padding: clamp(14px, 2.5vmin, 28px);
+  background:
+    linear-gradient(135deg, var(--madera-claro) 0%, var(--madera-borde) 30%, var(--madera-media) 60%, var(--madera-borde) 100%);
+  border-radius: calc(var(--radio-tablero) + 8px);
+  box-shadow:
+    var(--shadow-deep),
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 -1px 0 rgba(0,0,0,.4);
+  animation: fadeUp .9s .1s ease both;
+}
+
+/* Veteado de madera en el marco */
+#marco-exterior::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    repeating-linear-gradient(
+      105deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(0,0,0,.04) 8px,
+      rgba(0,0,0,.04) 9px
+    ),
+    repeating-linear-gradient(
+      75deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(255,255,255,.03) 18px,
+      rgba(255,255,255,.03) 19px
+    );
+  pointer-events: none;
+}
+
+/* Borde dorado fino */
+#marco-exterior::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: calc(var(--radio-tablero) + 4px);
+  border: 1.5px solid rgba(200,144,58,.45);
+  pointer-events: none;
+}
+
+/* ── Tablero ──────────────────────────────────────── */
 #tablero {
-    display: grid;
-    /* Crea 8 columnas que se adaptan al tamaño del contenedor */
-    grid-template-columns: repeat(8, 1fr); 
-    /* Crea 8 filas que se adaptan al tamaño del contenedor */
-    grid-template-rows: repeat(8, 1fr);
-    
-    /* El tablero se ajusta al 90% del viewport, manteniendo proporción cuadrada */
-    width: min(90vw, 90vh);
-    height: min(90vw, 90vh);
-    
-    border: 5px solid #333; /* Un borde bonito para el tablero */
-    margin: 2vh auto; /* Centra el tablero y ajusta margen responsivo */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* Le da profundidad */
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows:    repeat(8, 1fr);
+
+  width:  min(78vw, 78vh, 600px);
+  height: min(78vw, 78vh, 600px);
+
+  border-radius: var(--radio-tablero);
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,.25),
+    0 2px 8px rgba(0,0,0,.5);
+  position: relative;
 }
 
-/* Estilos para cada celda */
+/* ── Celdas ───────────────────────────────────────── */
 .celda {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center; /* Centra el texto/pieza verticalmente */
-    justify-content: center; /* Centra el texto/pieza horizontalmente */
-    font-size: 3em; /* Tamaño relativo para las piezas (emojis o texto) que se escala con el tablero */
-    cursor: pointer;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.4rem, 5.5vmin, 3.2rem);
+  cursor: pointer;
+  position: relative;
+  transition: filter .12s ease, background-color .15s ease;
+  user-select: none;
 }
 
-.celda:hover {
-    filter: brightness(1.1); /* Efecto visual al pasar el mouse */
+/* Color de casillas */
+.celda.clara  { background-color: var(--casilla-clara); }
+.celda.oscura { background-color: var(--casilla-oscura); }
+
+/* Hover */
+.celda.clara:hover  { background-color: var(--casilla-hover-c); filter: brightness(1.05); }
+.celda.oscura:hover { background-color: var(--casilla-hover-o); filter: brightness(1.08); }
+
+/* Seleccionada */
+.celda.seleccionada {
+  background-color: var(--casilla-sel) !important;
+  box-shadow: inset 0 0 0 3px rgba(220,200,50,.6);
 }
 
-/* Media queries para pantallas pequeñas */
-@media (max-width: 600px) {
-    .celda {
-        font-size: 2em; /* Reduce el tamaño de las piezas en pantallas pequeñas */
-    }
+/* Movimiento posible */
+.celda.movimiento-posible::after {
+  content: '';
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: rgba(80,100,20,.45);
+  pointer-events: none;
+  animation: pulseDot .9s ease infinite alternate;
+}
+
+.celda.movimiento-posible.tiene-pieza::after {
+  width: 88%;
+  height: 88%;
+  border-radius: 50%;
+  background: transparent;
+  border: 4px solid rgba(80,100,20,.5);
+}
+
+/* Jaque */
+.celda.jaque {
+  background-color: var(--casilla-jaque) !important;
+  animation: flashJaque .5s ease 2;
+}
+
+/* ── Piezas ───────────────────────────────────────── */
+.celda span,
+.celda .pieza {
+  display: inline-block;
+  line-height: 1;
+  filter: drop-shadow(var(--shadow-pieza));
+  transition: transform .12s cubic-bezier(.34,1.56,.64,1), filter .12s ease;
+  pointer-events: none;
+}
+
+.celda:hover span,
+.celda:hover .pieza {
+  transform: translateY(-2px) scale(1.06);
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.55)) drop-shadow(0 1px 3px rgba(0,0,0,.4));
+}
+
+.celda.seleccionada span,
+.celda.seleccionada .pieza {
+  transform: translateY(-4px) scale(1.1);
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,.6)) drop-shadow(0 0 8px rgba(240,200,80,.5));
+}
+
+/* ── Coordenadas del tablero ─────────────────────── */
+.coord-letra,
+.coord-numero {
+  position: absolute;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(.45rem, 1.1vmin, .75rem);
+  font-weight: 700;
+  opacity: .65;
+  pointer-events: none;
+  line-height: 1;
+  user-select: none;
+}
+
+.coord-letra  { bottom: 2px; right: 3px; }
+.coord-numero { top: 2px; left: 3px; }
+
+.celda.clara  .coord-letra,
+.celda.clara  .coord-numero { color: var(--casilla-oscura); }
+.celda.oscura .coord-letra,
+.celda.oscura .coord-numero { color: var(--casilla-clara); }
+
+/* ── Panel de info (turno, estado) ───────────────── */
+#panel-info {
+  margin-top: clamp(10px, 1.8vh, 20px);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp .9s .3s ease both;
+}
+
+#turno-label {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(.85rem, 2vw, 1.15rem);
+  letter-spacing: .12em;
+  color: var(--dorado-brill);
+  text-shadow: 0 1px 6px rgba(200,144,58,.4);
+  text-transform: uppercase;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(200,144,58,.2);
+  border-radius: 30px;
+  padding: 6px 20px;
+  backdrop-filter: blur(4px);
+}
+
+#estado-juego {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: clamp(.8rem, 1.8vw, 1rem);
+  color: rgba(240,220,180,.6);
+  letter-spacing: .05em;
+}
+
+/* ── Botón reiniciar ─────────────────────────────── */
+#btn-reiniciar {
+  margin-top: clamp(8px, 1.5vh, 16px);
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(.75rem, 1.6vw, .95rem);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--madera-borde);
+  background: linear-gradient(135deg, var(--dorado-brill) 0%, var(--madera-dorado) 100%);
+  border: none;
+  border-radius: 30px;
+  padding: 8px 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(200,144,58,.35), 0 1px 3px rgba(0,0,0,.4);
+  transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+  animation: fadeUp .9s .4s ease both;
+}
+
+#btn-reiniciar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 20px rgba(200,144,58,.5), 0 2px 6px rgba(0,0,0,.4);
+  filter: brightness(1.07);
+}
+
+#btn-reiniciar:active {
+  transform: translateY(0);
+  filter: brightness(.95);
+}
+
+/* ── Animaciones ─────────────────────────────────── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseDot {
+  from { transform: scale(.85); opacity: .5; }
+  to   { transform: scale(1.1);  opacity: .9; }
+}
+
+@keyframes flashJaque {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .6; }
+}
+
+/* Entrada de pieza al moverse */
+@keyframes pieceMove {
+  0%   { transform: scale(.85) translateY(-6px); opacity: .7; }
+  100% { transform: scale(1)   translateY(0);    opacity: 1; }
+}
+
+.celda .pieza-nueva {
+  animation: pieceMove .22s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 520px) {
+  #marco-exterior { padding: 10px; }
+  #tablero {
+    width:  min(92vw, 92vh);
+    height: min(92vw, 92vh);
+  }
+  .celda { font-size: clamp(1.1rem, 9vw, 2rem); }
+}
+
+@media (max-height: 560px) {
+  body { padding: 8px; }
+  #titulo-juego { font-size: 1.2rem; margin-bottom: 6px; }
+  #tablero {
+    width:  min(70vw, 82vh);
+    height: min(70vw, 82vh);
+  }
 }
